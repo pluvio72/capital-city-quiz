@@ -42,8 +42,19 @@ const getCountryItems = (data, count) => {
   const output = [];
 
   for (let i = 0; i < count; i += 1) {
-    const index = Math.floor(Math.random() * data.length);
-    const chosenItem = data[index];
+    let itemFound = false;
+    let chosenItem, index;
+
+    // dangerous using a while loop here could probably have a max number of tries instead
+    // then FE would need to also catch if this fails and not render an empty answer
+    while (!itemFound) {
+      index = Math.floor(Math.random() * data.length);
+      chosenItem = data[index];
+
+      if (chosenItem.capital) {
+        itemFound = true;
+      }
+    }
   
     data.splice(index, 1);
     output.push({
