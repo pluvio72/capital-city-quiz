@@ -1,0 +1,23 @@
+org: pluvio72
+app: countries-api
+service: countries-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 4000
+
+functions:
+  api:
+    handler: functions/countries.handler
+    events:
+      - httpApi:
+          path: /countries
+          method: get
