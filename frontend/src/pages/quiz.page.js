@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchCountries } from "../api/countries";
 import { Badge, Button, Container, Spinner } from "react-bootstrap";
-import { getRandomVariant } from "../util/styling";
+import BackgroundCounter from "../components/BackgroundCounter";
 
 export const QuizPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,12 @@ export const QuizPage = () => {
     setCountryToGuess(null);
     setAnswers([]);
   };
+
+  const onTimerEnd = useCallback(() => {
+    setWin(false);
+    setCountryToGuess(null);
+    setAnswers([]);
+  }, []);
 
   const renderCountry = useMemo(() => {
     if (isLoading) {
@@ -70,6 +76,7 @@ export const QuizPage = () => {
 
   return (
     <Container className="h-100 justify-content-center align-items-center d-flex">
+      <BackgroundCounter startingValue={10} onEnd={onTimerEnd} />
       {win === null ?
         <div className="py-3 px-5 bg-dark rounded text-light text-center">
           <h1 className="mb-4">Quiz</h1>
