@@ -1,95 +1,95 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { fetchCountries } from "../api/countries";
-import { Badge, Button, Container, Spinner } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import BackgroundCounter from "../components/BackgroundCounter";
+import EndBox from "../components/EndBox";
+import QuizBox from "../components/QuizBox";
+
+const initialState = {
+  current: null,
+  next: null,
+}
 
 export const QuizPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [countryToGuess, setCountryToGuess] = useState(null);
-  const [answers, setAnswers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [time, setTime] = useState(30);
 
-  const [win, setWin] = useState(null);
+  const [countryToGuess, setCountryToGuess] = useState(initialState);
+  const [answers, setAnswers] = useState(initialState);
+
+  const [finished, setFinished] = useState(false);
+  const [points, setPoints] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
-    if (!countryToGuess) {
-      fetchCountries().then((data) => {
-        if (data) {
-          setCountryToGuess(data.country);
-          setAnswers(data.answers);
-          setIsLoading(false);
-        }
-      });
+
+    const setup = async () => {
+      const currentData = await fetchCountries()
+      if (currentData) {
+        setCountryToGuess((prev) => ({ ...prev, current: currentData.country }));
+        setAnswers((prev) => ({ ...prev, current: currentData.answers }));
+      }
+
+      const nextData = await fetchCountries()
+      if (nextData) {
+        setCountryToGuess((prev) => ({ ...prev, next: nextData.country }));
+        setAnswers((prev) => ({ ...prev, next: nextData.answers }));
+      }
+      
+      setIsLoading(false);
     }
+
+    setup();
   }, []);
 
-  const submitAnswer = (answer) => {
-    if (answer.correct) {
-      setWin(true);
-    } else {
-      setWin(false);
+  const fetchNextQuestion = async () => {
+    // set current to next then fetch next
+    setCountryToGuess((prev) => ({ ...prev, current: prev.next }));
+    setAnswers((prev) => ({ ...prev, current: prev.next }));
+
+    const nextData = await fetchCountries()
+    if (nextData) {
+      setCountryToGuess((prev) => ({ ...prev, next: nextData.country }));
+      setAnswers((prev) => ({ ...prev, next: nextData.answers }));
     }
-    setCountryToGuess(null);
-    setAnswers([]);
-  };
+  }
+
+  const submitAnswer = useCallback(
+    (answer) => {
+      if (answer.correct) {
+        setPoints(points + 1);
+        fetchNextQuestion();
+      } else {
+        setFinished(true);
+      }
+    },
+    [points]
+  );
 
   const onTimerEnd = useCallback(() => {
-    setWin(false);
-    setCountryToGuess(null);
-    setAnswers([]);
+    setFinished(true);
   }, []);
 
-  const renderCountry = useMemo(() => {
-    if (isLoading) {
-      return <Spinner />
-    }
-
-    return (
-      <h3>
-        <Badge>{countryToGuess}</Badge>
-      </h3>
-    )
-
-  }, [isLoading, countryToGuess]);
-
-  const renderAnswers = useMemo(() => {
-    if (isLoading) {
-      return <Spinner className="mx-auto my-2" />
-    }
-
-    return answers.map((answer, index) => {
-      return (
-        <div key={index} className="mb-2">
-          <h4>
-            <Button
-              onClick={() => submitAnswer(answer)}
-              variant={"success"}
-              className="mx-1"
-            >
-              {answer.capital}
-            </Button>
-          </h4>
-        </div>
-      );
-    });
-  }, [answers, isLoading]);
+  const onRestart = useCallback(() => {
+    fetchNextQuestion();
+    setFinished(false);
+    setPoints(0);
+    setTime(30);
+  }, []);
 
   return (
     <Container className="h-100 justify-content-center align-items-center d-flex">
-      <BackgroundCounter startingValue={10} onEnd={onTimerEnd} />
-      {win === null ?
-        <div className="py-3 px-5 bg-dark rounded text-light text-center">
-          <h1 className="mb-4">Quiz</h1>
-          <span className="fs-5">What is the capital city of:</span>
-          <br className="mb-3" />
-          {renderCountry}
-          <br className="mb-3" />
-          <span className="italic fs-5">Answers:</span>
-          <div className="mt-2 d-flex flex-row mb-1">{renderAnswers}</div>
-        </div>
-        :
-        <p>Play again? You: {win ? 'WIN' : 'LOSE'}</p>
-      }
+      <BackgroundCounter value={time} active={!isLoading && !finished} setValue={setTime} onEnd={onTimerEnd} />
+      {finished ? (
+        <EndBox points={points} onRestart={onRestart} />
+      ) : (
+        <QuizBox
+          submitAnswer={submitAnswer}
+          answers={answers}
+          countryToGuess={countryToGuess}
+          isLoading={isLoading}
+        />
+      )}
     </Container>
   );
 };

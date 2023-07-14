@@ -1,29 +1,36 @@
-import './BackgroundCounter.css';
+import "./BackgroundCounter.css";
 
-import React, { useState } from 'react';
-import { useInterval } from '../../hooks/useInterval';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useInterval } from "../../hooks/useInterval";
+import PropTypes from "prop-types";
 
-export const BackgroundCounter = ({ startingValue, onEnd }) => {
-  const [count, setCount] = useState(startingValue);
-
+export const BackgroundCounter = ({
+  value,
+  setValue,
+  active,
+  onEnd,
+}) => {
   useInterval(() => {
-    if (count > 0) {
-      setCount(count - 1);
-    } else {
-      onEnd();
+    if (active) {
+      if (value > 1) {
+        setValue(value - 1);
+      } else {
+        onEnd();
+      }
     }
   }, 1000);
 
   return (
     <div id="backgroundText" className="position-absolute t-0 l-0">
-      <span>{count}</span>
+      <span>{value}</span>
     </div>
-  )
+  );
 };
 
 BackgroundCounter.propTypes = {
-  startingValue: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+  setValue: PropTypes.func.isRequired,
+  active: PropTypes.bool.isRequired,
   onEnd: PropTypes.func,
 };
 
