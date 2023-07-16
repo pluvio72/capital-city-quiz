@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { fetchCountries } from "../api/countries";
+import { fetchCountries, postAnswer } from "../api/countries";
 import { Container } from "react-bootstrap";
-import BackgroundCounter from "../components/BackgroundCounter";
+import BackgroundNumber from "../components/BackgroundNumber";
 import EndBox from "../components/EndBox";
 import QuizBox from "../components/QuizBox";
 
@@ -12,7 +12,6 @@ const initialState = {
 
 export const QuizPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [time, setTime] = useState(30);
 
   const [countryToGuess, setCountryToGuess] = useState(initialState);
   const [answers, setAnswers] = useState(initialState);
@@ -55,31 +54,28 @@ export const QuizPage = () => {
   }
 
   const submitAnswer = useCallback(
-    (answer) => {
-      if (answer.correct) {
+    async (answer) => {
+      const data = await postAnswer({ country: countryToGuess.current, answer: answer });
+
+      if (data.correct) {
         setPoints(points + 1);
         fetchNextQuestion();
       } else {
         setFinished(true);
       }
     },
-    [points]
+    [points, countryToGuess]
   );
-
-  const onTimerEnd = useCallback(() => {
-    setFinished(true);
-  }, []);
 
   const onRestart = useCallback(() => {
     fetchNextQuestion();
     setFinished(false);
     setPoints(0);
-    setTime(30);
   }, []);
 
   return (
     <Container className="h-100 justify-content-center align-items-center d-flex">
-      <BackgroundCounter value={time} active={!isLoading && !finished} setValue={setTime} onEnd={onTimerEnd} />
+      <BackgroundNumber value={points} />
       {finished ? (
         <EndBox points={points} onRestart={onRestart} />
       ) : (

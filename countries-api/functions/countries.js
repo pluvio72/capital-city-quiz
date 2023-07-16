@@ -1,22 +1,37 @@
-module.exports.handler = async (event) => {
-  const COUNTRIES_ENDPOINT = "https://countriesnow.space/api/v0.1/countries/capital"
+const { COUNTRIES_ENDPOINT } = require("../constants");
 
+const fetchCountries = async () => {
   try {
     const response = await fetch(COUNTRIES_ENDPOINT);
-    const dataObject = await response.json();
+    const parsedData = await response.json();
+
+    if (parsedData.error) {
+      console.log("[external error]: ", error);
+      return null;
+    }
+
+    // don't know api response structure, so assuming if no error then data is an array
+    const { data } = parsedData;
+
+    // remove any items without capitals
+    return data.filter(item => item.capital);
+  } catch (error) {
+    console.error('[fetchCountries]:', error);
+    return null;
+  }
+};
+
+module.exports.handler = async (event) => {
+  try {
+    const data = await fetchCountries();
 
     // early return if api errors
-    if (dataObject.error) {
-      console.log("[external error]: ", error);
-
+    if (!data) {
       return {
         statusCode: 500,
         body: null,
       }
     }
-
-    // don't know api response structure, so assuming if no error then data is an array
-    const { data } = dataObject;
 
     const [correctItem, incorrectItem1, incorrectItem2] = getCountryItems(data, 3);
     const answers = formatAnswers(correctItem, incorrectItem1, incorrectItem2);
@@ -42,19 +57,8 @@ const getCountryItems = (data, count) => {
   const output = [];
 
   for (let i = 0; i < count; i += 1) {
-    let itemFound = false;
-    let chosenItem, index;
-
-    // dangerous using a while loop here could probably have a max number of tries instead
-    // then FE would need to also catch if this fails and not render an empty answer
-    while (!itemFound) {
-      index = Math.floor(Math.random() * data.length);
-      chosenItem = data[index];
-
-      if (chosenItem.capital) {
-        itemFound = true;
-      }
-    }
+    const index = Math.floor(Math.random() * data.length);
+    const chosenItem = data[index];
   
     data.splice(index, 1);
     output.push({
@@ -68,8 +72,10 @@ const getCountryItems = (data, count) => {
 
 const formatAnswers = (correctItem, incorrectItem1, incorrectItem2) => {
   return [
-    { capital: correctItem.capital, correct: true },
-    { capital: incorrectItem1.capital, correct: false },
-    { capital: incorrectItem2.capital, correct: false },
+    { capital: correctItem.capital },
+    { capital: incorrectItem1.capital },
+    { capital: incorrectItem2.capital },
   ];
-}
+};
+
+module.exports.fetchCountries = fetchCountries;

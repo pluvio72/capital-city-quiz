@@ -14,9 +14,9 @@ export const QuizBox = ({
     }
 
     return (
-      <h3>
+      <h2>
         <Badge>{countryToGuess.current}</Badge>
-      </h3>
+      </h2>
     );
   }, [isLoading, countryToGuess]);
 
@@ -27,12 +27,12 @@ export const QuizBox = ({
     
     return answers.current.map((answer, index) => {
       return (
-        <div key={index} className="mb-2">
+        <div key={index} className="">
           <h4>
             <Button
-              onClick={() => submitAnswer(answer)}
-              variant={"success"}
-              className="mx-1"
+              onClick={() => submitAnswer(answer.capital)}
+              variant={"secondary"}
+              className="mx-1 fw-bold"
             >
               {answer.capital}
             </Button>
@@ -50,7 +50,7 @@ export const QuizBox = ({
       {renderCountry}
       <br className="mb-3" />
       <span className="italic fs-5">Answers:</span>
-      <div className="mt-2 d-flex flex-row mb-1">{renderAnswers}</div>
+      <div className="mt-2 d-flex flex-column mt-4 mb-2">{renderAnswers}</div>
     </div>
   );
 };
