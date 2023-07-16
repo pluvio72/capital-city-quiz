@@ -22,13 +22,16 @@ module.exports.handler = async (event) => {
     }
 
     const result = data.find(
-      (item) => item.capital === body.answer && item.name === body.country
+      (item) => item.name === body.country
     );
+
+    const correct = result.capital === body.answer;
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        correct: !!result,
+        correct,
+        answer: result.capital,
       }),
     };
   } catch (error) {

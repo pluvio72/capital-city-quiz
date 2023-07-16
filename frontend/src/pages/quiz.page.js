@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import { fetchQuestion, postAnswer } from "../api/countries";
 import { Container } from "react-bootstrap";
 import BackgroundNumber from "../components/BackgroundNumber";
-import EndBox from "../components/EndBox";
 import QuizBox from "../components/QuizBox";
 import { useEventBus } from '../hooks/useEventBus';
 import { EventTypes } from "../constants";
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
   current: null,
@@ -14,13 +14,11 @@ const initialState = {
 
 export const QuizPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-
   const [countryToGuess, setCountryToGuess] = useState(initialState);
   const [answers, setAnswers] = useState(initialState);
-
-  const [finished, setFinished] = useState(false);
   const [points, setPoints] = useState(0);
 
+  const navigate = useNavigate();
   const { dispatch } = useEventBus();
 
   useEffect(() => {
@@ -66,31 +64,21 @@ export const QuizPage = () => {
         setPoints(points + 1);
         fetchNextQuestion();
       } else {
-        setFinished(true);
+        navigate('/end', { state: { points, correctAnswer: data.answer } });
       }
     },
     [points, countryToGuess]
   );
 
-  const onRestart = useCallback(() => {
-    fetchNextQuestion();
-    setFinished(false);
-    setPoints(0);
-  }, []);
-
   return (
     <Container className="h-100 justify-content-center align-items-center d-flex">
       <BackgroundNumber value={points} />
-      {finished ? (
-        <EndBox points={points} onRestart={onRestart} />
-      ) : (
-        <QuizBox
-          submitAnswer={submitAnswer}
-          answers={answers}
-          countryToGuess={countryToGuess}
-          isLoading={isLoading}
-        />
-      )}
+      <QuizBox
+        submitAnswer={submitAnswer}
+        answers={answers}
+        countryToGuess={countryToGuess}
+        isLoading={isLoading}
+      />
     </Container>
   );
 };
