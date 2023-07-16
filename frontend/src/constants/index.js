@@ -1,0 +1,4 @@
+export const EventTypes = {
+  CORRECT_ANSWER: 'CORRECT_ANSWER',
+  WRONG_ANSWER: 'WRONG_ANSWER',
+}

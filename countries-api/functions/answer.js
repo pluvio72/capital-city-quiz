@@ -1,5 +1,4 @@
-const { COUNTRIES_ENDPOINT } = require("../constants");
-const { fetchCountries } = require("./countries");
+const { fetchCountries } = require('./countries');
 
 module.exports.handler = async (event) => {
   try {
@@ -12,7 +11,7 @@ module.exports.handler = async (event) => {
       };
     }
 
-    const data = await fetchCountries(COUNTRIES_ENDPOINT);
+    const data = await fetchCountries();
 
     // early return if api errors
     if (!data) {

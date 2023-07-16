@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { fetchCountries, postAnswer } from "../api/countries";
+import { fetchQuestion, postAnswer } from "../api/countries";
 import { Container } from "react-bootstrap";
 import BackgroundNumber from "../components/BackgroundNumber";
 import EndBox from "../components/EndBox";
 import QuizBox from "../components/QuizBox";
+import { useEventBus } from '../hooks/useEventBus';
+import { EventTypes } from "../constants";
 
 const initialState = {
   current: null,
@@ -19,17 +21,19 @@ export const QuizPage = () => {
   const [finished, setFinished] = useState(false);
   const [points, setPoints] = useState(0);
 
+  const { dispatch } = useEventBus();
+
   useEffect(() => {
     setIsLoading(true);
 
     const setup = async () => {
-      const currentData = await fetchCountries()
+      const currentData = await fetchQuestion()
       if (currentData) {
         setCountryToGuess((prev) => ({ ...prev, current: currentData.country }));
         setAnswers((prev) => ({ ...prev, current: currentData.answers }));
       }
 
-      const nextData = await fetchCountries()
+      const nextData = await fetchQuestion()
       if (nextData) {
         setCountryToGuess((prev) => ({ ...prev, next: nextData.country }));
         setAnswers((prev) => ({ ...prev, next: nextData.answers }));
@@ -46,7 +50,7 @@ export const QuizPage = () => {
     setCountryToGuess((prev) => ({ ...prev, current: prev.next }));
     setAnswers((prev) => ({ ...prev, current: prev.next }));
 
-    const nextData = await fetchCountries()
+    const nextData = await fetchQuestion()
     if (nextData) {
       setCountryToGuess((prev) => ({ ...prev, next: nextData.country }));
       setAnswers((prev) => ({ ...prev, next: nextData.answers }));
@@ -55,9 +59,10 @@ export const QuizPage = () => {
 
   const submitAnswer = useCallback(
     async (answer) => {
-      const data = await postAnswer({ country: countryToGuess.current, answer: answer });
+      const data = await postAnswer({ country: countryToGuess.current, answer });
 
       if (data.correct) {
+        dispatch(EventTypes.CORRECT_ANSWER);
         setPoints(points + 1);
         fetchNextQuestion();
       } else {

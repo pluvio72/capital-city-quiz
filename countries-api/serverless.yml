@@ -15,14 +15,14 @@ custom:
     httpPort: 4000
 
 functions:
-  get-countries:
-    handler: functions/countries.handler
+  get-question:
+    handler: functions/question.handler
     events:
       - httpApi:
-          path: /countries
+          path: /question
           method: get
 
-  answer:
+  post-answer:
     handler: functions/answer.handler
     events:
       - httpApi:
