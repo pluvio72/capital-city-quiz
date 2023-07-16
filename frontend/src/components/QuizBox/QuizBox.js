@@ -7,6 +7,7 @@ export const QuizBox = ({
   countryToGuess,
   answers,
   submitAnswer,
+  points,
 }) => {
   const renderCountry = useMemo(() => {
     if (isLoading) {
@@ -31,7 +32,7 @@ export const QuizBox = ({
           <h4>
             <Button
               onClick={() => submitAnswer(answer)}
-              variant={"success"}
+              variant={"secondary"}
               className="mx-1"
             >
               {answer.capital}
@@ -43,7 +44,7 @@ export const QuizBox = ({
   }, [answers, isLoading]);
 
   return (
-    <div className="py-3 px-5 bg-dark rounded text-light text-center">
+    <div className="py-3 px-5 bg-dark rounded text-light text-center shadow">
       <h1 className="mb-4">Quiz</h1>
       <span className="fs-5">What is the capital city of:</span>
       <br className="mb-3" />
@@ -51,6 +52,7 @@ export const QuizBox = ({
       <br className="mb-3" />
       <span className="italic fs-5">Answers:</span>
       <div className="mt-2 d-flex flex-row mb-1">{renderAnswers}</div>
+      <span className="fs-1 mb-2">{points}</span>
     </div>
   );
 };

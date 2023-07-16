@@ -1,8 +1,10 @@
 import "./BackgroundCounter.css";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useInterval } from "../../hooks/useInterval";
 import PropTypes from "prop-types";
+import useEventBus from "../../hooks/useEventBus";
+import { EventTypes } from "../../constants/events";
 
 export const BackgroundCounter = ({
   value,
@@ -10,6 +12,28 @@ export const BackgroundCounter = ({
   active,
   onEnd,
 }) => {
+  const [color, setColor] = useState("");
+  const { on } = useEventBus();
+
+  const handleCorrectAnswer = () => {
+    console.log("DA:", color);
+    if (color === "green") {
+      setColor("red");
+      // setColor("green");
+    } else {
+      console.log("green");
+      setColor("green");
+    }
+  }
+
+  useEffect(() => {
+    on(EventTypes.SubmitCorrectAnswer, () => {
+      handleCorrectAnswer();
+    });
+    on(EventTypes.SubmitWrongAnswer, () => setColor("red"));
+  }, [handleCorrectAnswer]);
+
+
   useInterval(() => {
     if (active) {
       if (value > 1) {
@@ -21,8 +45,10 @@ export const BackgroundCounter = ({
   }, 1000);
 
   return (
-    <div id="backgroundText" className="position-absolute t-0 l-0">
-      <span>{value}</span>
+    <div id="backgroundTextParent" className="position-absolute t-0 l-0">
+      <span onAnimationEnd={() => setColor('')} color={color} id="backgroundText">
+        {value}
+      </span>
     </div>
   );
 };

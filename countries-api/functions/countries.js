@@ -67,9 +67,19 @@ const getCountryItems = (data, count) => {
 };
 
 const formatAnswers = (correctItem, incorrectItem1, incorrectItem2) => {
-  return [
-    { capital: correctItem.capital, correct: true },
-    { capital: incorrectItem1.capital, correct: false },
-    { capital: incorrectItem2.capital, correct: false },
-  ];
+  return (
+      [
+        { capital: correctItem.capital, correct: true },
+        { capital: incorrectItem1.capital, correct: false },
+        { capital: incorrectItem2.capital, correct: false },
+      ]
+    );
+}
+
+const shuffle = (a) => {
+  for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }

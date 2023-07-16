@@ -4,11 +4,13 @@ import { Container } from "react-bootstrap";
 import BackgroundCounter from "../components/BackgroundCounter";
 import EndBox from "../components/EndBox";
 import QuizBox from "../components/QuizBox";
+import useEventBus from "../hooks/useEventBus";
+import { EventTypes } from "../constants/events";
 
 const initialState = {
   current: null,
   next: null,
-}
+};
 
 export const QuizPage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,24 +22,29 @@ export const QuizPage = () => {
   const [finished, setFinished] = useState(false);
   const [points, setPoints] = useState(0);
 
+  const { dispatch } = useEventBus();
+
   useEffect(() => {
     setIsLoading(true);
 
     const setup = async () => {
-      const currentData = await fetchCountries()
+      const currentData = await fetchCountries();
       if (currentData) {
-        setCountryToGuess((prev) => ({ ...prev, current: currentData.country }));
+        setCountryToGuess((prev) => ({
+          ...prev,
+          current: currentData.country,
+        }));
         setAnswers((prev) => ({ ...prev, current: currentData.answers }));
       }
 
-      const nextData = await fetchCountries()
+      const nextData = await fetchCountries();
       if (nextData) {
         setCountryToGuess((prev) => ({ ...prev, next: nextData.country }));
         setAnswers((prev) => ({ ...prev, next: nextData.answers }));
       }
-      
+
       setIsLoading(false);
-    }
+    };
 
     setup();
   }, []);
@@ -47,19 +54,21 @@ export const QuizPage = () => {
     setCountryToGuess((prev) => ({ ...prev, current: prev.next }));
     setAnswers((prev) => ({ ...prev, current: prev.next }));
 
-    const nextData = await fetchCountries()
+    const nextData = await fetchCountries();
     if (nextData) {
       setCountryToGuess((prev) => ({ ...prev, next: nextData.country }));
       setAnswers((prev) => ({ ...prev, next: nextData.answers }));
     }
-  }
+  };
 
   const submitAnswer = useCallback(
     (answer) => {
       if (answer.correct) {
+        dispatch(EventTypes.SubmitCorrectAnswer);
         setPoints(points + 1);
         fetchNextQuestion();
       } else {
+        dispatch(EventTypes.SubmitWrongAnswer);
         setFinished(true);
       }
     },
@@ -79,7 +88,12 @@ export const QuizPage = () => {
 
   return (
     <Container className="h-100 justify-content-center align-items-center d-flex">
-      <BackgroundCounter value={time} active={!isLoading && !finished} setValue={setTime} onEnd={onTimerEnd} />
+      <BackgroundCounter
+        value={time}
+        active={!isLoading && !finished}
+        setValue={setTime}
+        onEnd={onTimerEnd}
+      />
       {finished ? (
         <EndBox points={points} onRestart={onRestart} />
       ) : (
@@ -88,6 +102,7 @@ export const QuizPage = () => {
           answers={answers}
           countryToGuess={countryToGuess}
           isLoading={isLoading}
+          points={points}
         />
       )}
     </Container>
