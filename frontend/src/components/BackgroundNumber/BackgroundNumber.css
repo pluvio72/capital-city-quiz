@@ -1,11 +1,12 @@
 #backgroundText {
   z-index: -10;
+  transform: translateX(-50%);
 }
 
 #backgroundText > span {
-  font-size: 75vw;
+  font-size: 8rem;
   opacity: 0.4;
-  text-shadow: -10px -10px 1px rgba(255,255,255,.1), 10px 10px 1px rgba(0,0,0,.5);
+  text-shadow: -6px -6px 1px rgba(255,255,255,.1), 6px 6px 1px rgba(0,0,0,.5);
   color: #d9d9d9;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }

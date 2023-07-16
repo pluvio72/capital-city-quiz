@@ -1,4 +1,5 @@
 const { fetchCountries } = require('./countries');
+const { shuffle } = require('../util');
 
 module.exports.handler = async (event) => {
   try {
@@ -50,11 +51,11 @@ const getCountryItems = (data, count) => {
 };
 
 const formatAnswers = (correctItem, incorrectItem1, incorrectItem2) => {
-  return [
+  return shuffle([
     { capital: correctItem.capital },
     { capital: incorrectItem1.capital },
     { capital: incorrectItem2.capital },
-  ];
+  ]);
 };
 
 module.exports.fetchCountries = fetchCountries;

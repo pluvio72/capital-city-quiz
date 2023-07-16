@@ -7,7 +7,7 @@ export const BackgroundCounter = ({
   value,
 }) => {
   return (
-    <div id="backgroundText" className="position-absolute t-0 l-0">
+    <div id="backgroundText" className="position-absolute top-0 start-50">
       <span>{value}</span>
     </div>
   );

@@ -1,10 +1,9 @@
-const shuffleArray = (array) => {
-  for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+const shuffle = (a) => {
+  for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
   }
-};
+  return a;
+}
 
-module.exports.shuffleArray = shuffleArray;
+module.exports.shuffle = shuffle;
