@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useEventBus } from "../../hooks/useEventBus";
 import { FaCheck } from "react-icons/fa";
 import { EventTypes } from "../../constants";
+import PropTypes from 'prop-types';
 
 export const SuccessFlash = ({ ttl }) => {
   const [visible, setVisible] = useState(false);
@@ -28,5 +29,10 @@ export const SuccessFlash = ({ ttl }) => {
   } else {
     return null;
   }
-  
 };
+
+SuccessFlash.defaultProps = {
+  ttl: PropTypes.number.isRequired,
+};
+
+export default SuccessFlash;
